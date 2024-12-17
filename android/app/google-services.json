@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "474327895978",
+    "project_id": "native-3e450",
+    "storage_bucket": "native-3e450.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:474327895978:android:6a050ac1251ce57ba2a5d3",
+        "android_client_info": {
+          "package_name": "com.testingapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCkG2E-A8qoYCdeQ_1v7x2V-O9U1BKjcqQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
