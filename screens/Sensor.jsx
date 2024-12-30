@@ -14,12 +14,12 @@ import {
 import RNBluetoothClassic from 'react-native-bluetooth-classic';
 import { PermissionsAndroid, Platform } from 'react-native';
 
-import SplashScreen from 'react-native-splash-screen';
+
 import useSaveData from '../hooks/useSaveData';
 
 const Sensor = () => {
     const { saveData, loading,error} = useSaveData();
-    const [currentDateTime, setCurrentDateTime] = useState(new Date());
+     const [currentDateTime, setCurrentDateTime] = useState(new Date());
     const [devices, setDevices] = useState([]);
     const [connectedDevice, setConnectedDevice] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
@@ -37,16 +37,7 @@ const Sensor = () => {
 
 
     // Update date and time every second
-    useEffect(() => {
-        if(Platform.OS === 'android') {
-            SplashScreen.hide();
-        }
 
-        const interval = setInterval(() => {
-            setCurrentDateTime(new Date());
-        }, 1000);
-        return () => clearInterval(interval);
-    }, []);
     const requestBluetoothPermissions = async () => {
         try {
             if (Platform.OS === 'android' && Platform.Version >= 31) {

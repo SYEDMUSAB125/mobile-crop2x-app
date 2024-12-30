@@ -13,13 +13,16 @@ export default function Login({ navigation }) {
 
     if (result.success) {
       Alert.alert('Success', 'Login successful!');
-      navigation.navigate('home', { username: email });
+      navigation.navigate('sensor', { username: email });
     } else {
       Alert.alert('Error', result.error || 'Login failed. Please try again.');
     }
   };
 
   return (
+
+
+   
     <View style={styles.container}>
       <Text style={styles.header}>
         🌾 Crop 2<Text style={styles.span}>x</Text>
