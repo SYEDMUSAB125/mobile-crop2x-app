@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ref, set, getDatabase } from 'firebase/database'; // Ensure you import correctly
+import { ref, set } from 'firebase/database'; // Ensure you import correctly
 import { db } from '../firebase-config'; // Your Firebase config file
 
 const useSaveData = () => {

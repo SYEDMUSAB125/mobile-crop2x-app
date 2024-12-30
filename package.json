@@ -10,6 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@firebase/auth": "^1.8.1",
     "@react-native-firebase/app": "^21.6.1",
     "@react-native-firebase/firestore": "^21.6.1",
     "firebase": "^11.1.0",
@@ -17,7 +18,10 @@
     "react-native": "0.76.5",
     "react-native-ble-plx": "^3.2.1",
     "react-native-bluetooth-classic": "^1.73.0-rc.12",
-    "react-native-splash-screen": "^3.3.0"
+    "react-native-safe-area-context": "^5.0.0",
+    "react-native-screens": "^4.4.0",
+    "react-native-splash-screen": "^3.3.0",
+    "react-native-vector-icons": "^10.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

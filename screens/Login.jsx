@@ -1,27 +1,46 @@
-import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import React, { useState } from 'react';
 import Icon from 'react-native-vector-icons/Ionicons'; // Importing icon library
+import useSignIn from '../hooks/useSignIn'; // Importing the custom hook
 
-export default function Login({navigation}) {
-    const [username, setUsername] = useState('');
+export default function Login({ navigation }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const { signIn, loading, error } = useSignIn(); // Using the hook
+
+  const handleLogin = async () => {
+    const result = await signIn(email, password);
+
+    if (result.success) {
+      Alert.alert('Success', 'Login successful!');
+      navigation.navigate('home', { username: email });
+    } else {
+      Alert.alert('Error', result.error || 'Login failed. Please try again.');
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>🍭Design F<Text style={styles.span}>o</Text>rest</Text>
+      <Text style={styles.header}>
+        🌾 Crop 2<Text style={styles.span}>x</Text>
+      </Text>
       <View style={styles.imageContainer}>
         <Image
-        fadeDuration={300}
+          fadeDuration={300}
           style={styles.image}
           source={require('../assets/human-front.png')}
         />
       </View>
       <View style={styles.formContainer}>
         <View style={styles.inputContainer}>
-          <Icon name="person" size={24} color="#333" style={styles.icon} />
+          <Icon name="mail" size={24} color="#333" style={styles.icon} />
           <TextInput
             style={styles.input}
-            placeholder="Username"
+            placeholder="Email"
             placeholderTextColor="#333"
-            onChangeText={setUsername}
+            onChangeText={setEmail}
+            value={email}
+            keyboardType="email-address"
           />
         </View>
         <View style={styles.inputContainer}>
@@ -31,13 +50,20 @@ export default function Login({navigation}) {
             placeholder="Password"
             placeholderTextColor="#333"
             secureTextEntry
+            onChangeText={setPassword}
+            value={password}
           />
         </View>
-        <TouchableOpacity style={styles.loginButton}
-         onPress={() => navigation.navigate('home',{username}) }
-            >
-          <Text style={styles.loginButtonText}>Login</Text>
+        <TouchableOpacity
+          style={styles.loginButton}
+          onPress={handleLogin}
+          disabled={loading}
+        >
+          <Text style={styles.loginButtonText}>
+            {loading ? 'Logging in...' : 'Login'}
+          </Text>
         </TouchableOpacity>
+        {error && <Text style={styles.errorText}>{error}</Text>}
       </View>
     </View>
   );
@@ -106,5 +132,10 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: '600',
+  },
+  errorText: {
+    color: 'red',
+    marginTop: 10,
+    textAlign: 'center',
   },
 });
