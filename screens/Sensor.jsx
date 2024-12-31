@@ -13,11 +13,11 @@ import {
 } from 'react-native';
 import RNBluetoothClassic from 'react-native-bluetooth-classic';
 import { PermissionsAndroid, Platform } from 'react-native';
-
+import Icon from 'react-native-vector-icons/Ionicons';
 
 import useSaveData from '../hooks/useSaveData';
 
-const Sensor = () => {
+const Sensor = ({navigation}) => {
     const { saveData, loading,error} = useSaveData();
      const [currentDateTime, setCurrentDateTime] = useState(new Date());
     const [devices, setDevices] = useState([]);
@@ -241,12 +241,33 @@ const Sensor = () => {
             Alert.alert('Error', `Failed to save data: ${result.error}`);
           }
       };
+      const logOut = () =>{
+        Alert.alert('Log Out', 'Are you sure you want to log out?', [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Log Out',
+            onPress: () => navigation.navigate('login'),
+          },
+        ]);
+      }
+
+ const info = ()=>{
+    Alert.alert('معلومات: سب سے پہلے اپنے بلوٹوتھ کو آن کر کے ڈیوائس کو منسلک کریں , شکریہ۔');
+ }
+
+
+
 
     return (
         <View style={styles.container}>
             {/* Header Section */}
             <View style={styles.header}>
+            <Icon name="logout-outline" size={24} color="#fff"  style={styles.iconback} onPress={info}  />
                 <Text style={styles.headerText}>عنوان</Text>
+                <Icon name="log-out-outline" size={24} color="#fff"  onPress={logOut}  />
             </View>
             <View
                 style={{
@@ -370,6 +391,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#f3f8fc',
     },
     header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         padding: 15,
         backgroundColor: '#005f56',
         width: '100%',
@@ -379,6 +402,13 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 4,
         elevation: 5,
+    },
+    iconback :{
+        backgroundColor : "#beccc7",
+        textAlign : 'center',
+        borderRadius : 50,
+        height : 30,
+        width : 30,
     },
     headerText: {
         fontSize: 26,
