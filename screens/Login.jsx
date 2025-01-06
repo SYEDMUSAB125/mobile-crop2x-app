@@ -1,19 +1,15 @@
 import {
   View,
   Text,
-  Image,
   StyleSheet,
   TextInput,
   TouchableOpacity,
   Alert,
   ActivityIndicator,
-  Platform,
 } from 'react-native';
+import LottieView from 'lottie-react-native';
 import React, { useState } from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
-import Geolocation from 'react-native-geolocation-service';
-import { isPointWithinRadius } from 'geolib';
-import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import useSignIn from '../hooks/useSignIn';
 import logo from '../assets/human-front.png';
 export default function Login({ navigation }) {
@@ -21,25 +17,6 @@ export default function Login({ navigation }) {
   const [password, setPassword] = useState('');
   const [checkingLocation, setCheckingLocation] = useState(false);
   const { signIn, loading, error } = useSignIn();
-
-  const TARGET_COORDINATES = { latitude: 24.934564, longitude: 67.113089 };
-  const RANGE_IN_METERS = 500;
-
-  const requestLocationPermission = async () => {
-    try {
-      const result = await request(
-        Platform.OS === 'android'
-          ? PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION
-          : PERMISSIONS.IOS.LOCATION_WHEN_IN_USE
-      );
-
-      return result === RESULTS.GRANTED;
-    } catch (err) {
-      console.error('Permission error:', err);
-      return false;
-    }
-  };
-
   const validateFields = () => {
     if (!email || !password) {
       Alert.alert('Validation Error', 'Please enter both email and password.');
@@ -59,53 +36,29 @@ export default function Login({ navigation }) {
     const result = await signIn(email, password);
 
     if (result.success) {
-      const permissionGranted = await requestLocationPermission();
-      if (!permissionGranted) {
-        Alert.alert('Permission Denied', 'Location permission is required to proceed.');
-        return;
-      }
-
-      setCheckingLocation(true);
-      Geolocation.getCurrentPosition(
-        (position) => {
-          setCheckingLocation(false);
-          const { latitude, longitude } = position.coords;
-          const isInRange = isPointWithinRadius(
-            { latitude, longitude },
-            TARGET_COORDINATES,
-            RANGE_IN_METERS
-          );
-
-          if (isInRange) {
-            Alert.alert('Success', 'You are within the range!');
-            navigation.navigate('sensor', { username: email });
-          } else {
-            Alert.alert('Out of Range', 'You are outside the allowed area.');
-          }
-        },
-        (error) => {
-          setCheckingLocation(false);
-          Alert.alert('Error', 'Unable to get your location.');
-          console.error(error);
-        },
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-      );
+            navigation.navigate('home', { username: email });
     } else {
       Alert.alert('Error', result.error || 'Login failed. Please try again.');
     }
   };
 
   return (
+    <>
     <View style={styles.container}>
-      <Text style={styles.header}>
-        🌾Crop2<Text style={styles.span}>x</Text>
-      </Text>
+    <Text style={styles.header}>
+    🌾Crop2<Text style={styles.span}>x</Text>
+  </Text>
       <View style={styles.imageContainer}>
-        <Image
-          fadeDuration={300}
+        {/* <Image
           style={styles.image}
           source={logo}
-        />
+        /> */}
+        <LottieView
+        source={require('../assets/login.json')} // Path to your Lottie JSON file
+        autoPlay
+        loop
+        style={styles.image}
+      />
       </View>
       <View style={styles.formContainer}>
         <View style={styles.inputContainer}>
@@ -151,6 +104,7 @@ export default function Login({ navigation }) {
       
       </View>
     </View>
+    </>
   );
 }
 
@@ -162,17 +116,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   header: {
-    fontSize: 32,
+    position: 'absolute',
+    top: 30,
+    fontSize: 50,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 20,
+    marginTop: 30,
   },
   span: {
-    color: '#28a745',
+    color: '#005f56',
   },
   image: {
-    width: 150,
-    height: 150,
+    width: 300,
+    height: 300,
     resizeMode: 'contain',
   },
   imageContainer: {
@@ -206,7 +162,7 @@ const styles = StyleSheet.create({
   loginButton: {
     width: '100%',
     height: 50,
-    backgroundColor: '#ff7001',
+    backgroundColor: '#005f56',
     borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',
@@ -223,9 +179,5 @@ const styles = StyleSheet.create({
     marginTop: 10,
     textAlign: 'center',
   },
-  forgotPasswordText: {
-    color: '#007bff',
-    marginTop: 15,
-    textDecorationLine: 'underline',
-  }
+
 });

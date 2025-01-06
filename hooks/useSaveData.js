@@ -6,11 +6,11 @@ const useSaveData = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const saveData = async (data) => {
+  const saveData = async (data,email) => {
     setLoading(true);
     setError(null);
 
- 
+ let userName = email.split('@')[0];
 
     const { deviceId, temperature, conductivity, pH, moisture, nitrogen, phosphorus, potassium } = data;
 
@@ -25,8 +25,8 @@ const useSaveData = () => {
   
       console.log("check",db)
       // Create a reference to the device path
-      const dataRef = ref(db, `devices/${deviceId}`); // Example path: devices/M19-2407300001
-      console.log("kaisa boss",data);
+      const dataRef = ref(db, `devices/${userName}/${deviceId}`); // Example path: devices/M19-2407300001
+
       // Save data to Realtime Database
       await set(dataRef, {
         temperature: temperature || null,

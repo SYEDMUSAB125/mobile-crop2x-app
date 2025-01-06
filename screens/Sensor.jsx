@@ -8,16 +8,15 @@ import {
     FlatList,
     ActivityIndicator,
     Alert,
-    TextInput,
-    ScrollView,
 } from 'react-native';
 import RNBluetoothClassic from 'react-native-bluetooth-classic';
-import { PermissionsAndroid, Platform } from 'react-native';
+import { PermissionsAndroid , Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import useSaveData from '../hooks/useSaveData';
-
-const Sensor = ({navigation}) => {
+import useLogout from '../hooks/useLogout';
+import { CommonActions } from '@react-navigation/native';
+const Sensor = ( props) => {
     const { saveData, loading,error} = useSaveData();
      const [currentDateTime, setCurrentDateTime] = useState(new Date());
     const [devices, setDevices] = useState([]);
@@ -34,8 +33,10 @@ const Sensor = ({navigation}) => {
     const [phosphorus, setPhosphorus] = useState('');
     const [potassium, setPotassium] = useState('');
     const [count , setCount] = useState(0);
+    const { logout} = useLogout();
 
-
+    const navigation = props.navigation;
+    const email = props.route.params.username;
     // Update date and time every second
 
     const requestBluetoothPermissions = async () => {
@@ -134,7 +135,6 @@ const Sensor = ({navigation}) => {
     const startListeningForData = (device) => {
         try {
             const subscription = device.onDataReceived((data) => {
-                // console.log('Received data:', atob(data.data));
                 setReceivedData(atob(data.data));
             });
             return () => subscription.remove();
@@ -232,7 +232,7 @@ const Sensor = ({navigation}) => {
       }
     const handleSave = async () => {
       
-        const result = await saveData(data);
+        const result = await saveData(data,email);
        
           if (result.success) {
             Alert.alert('Success', 'Data saved successfully!');
@@ -241,23 +241,43 @@ const Sensor = ({navigation}) => {
             Alert.alert('Error', `Failed to save data: ${result.error}`);
           }
       };
-      const logOut = () =>{
-        Alert.alert('Log Out', 'Are you sure you want to log out?', [
-          {
-            text: 'Cancel',
-            style: 'cancel',
-          },
-          {
-            text: 'Log Out',
-            onPress: () => navigation.navigate('login'),
-          },
-        ]);
-      }
+      
 
- const info = ()=>{
-    Alert.alert('معلومات: سب سے پہلے اپنے بلوٹوتھ کو آن کر کے ڈیوائس کو منسلک کریں , شکریہ۔');
+ const back = ()=>{
+   navigation.navigate('home', { username: email });
  }
 
+
+const handleLogout = async () => {
+  Alert.alert(
+    'Confirm Logout',
+    'Are you sure you want to log out?',
+    [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: 'OK',
+        onPress: async () => {
+          const result = await logout();
+          if (result.success) {
+            // Reset the navigation stack to prevent going back to previous pages
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'login' }], // Navigate to the login page
+              })
+            );
+          } else {
+            Alert.alert('Error', `Failed to log out: ${result.error}`);
+          }
+        },
+      },
+    ],
+    { cancelable: true } // Allows tapping outside the alert to dismiss it
+  );
+};
 
 
 
@@ -265,9 +285,9 @@ const Sensor = ({navigation}) => {
         <View style={styles.container}>
             {/* Header Section */}
             <View style={styles.header}>
-            <Icon name="logout-outline" size={24} color="#fff"  style={styles.iconback} onPress={info}  />
+            <Icon name="arrow-back-outline" size={24} color="#fff"  style={styles.iconback} onPress={back}  />
                 <Text style={styles.headerText}>عنوان</Text>
-                <Icon name="log-out-outline" size={24} color="#fff"  onPress={logOut}  />
+                <Icon name="log-out-outline" size={24} color="#fff"  onPress={handleLogout}  />
             </View>
             <View
                 style={{
@@ -404,11 +424,8 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
     iconback :{
-        backgroundColor : "#beccc7",
+        
         textAlign : 'center',
-        borderRadius : 50,
-        height : 30,
-        width : 30,
     },
     headerText: {
         fontSize: 26,

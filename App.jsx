@@ -6,6 +6,8 @@ import SplashScreen from 'react-native-splash-screen';
 // Import your screens
 import Login from './screens/Login';
 import Sensor from './screens/Sensor';
+import Intro from './screens/Intro';
+import Home from './screens/Home';
 
 const Stack = createNativeStackNavigator();
 
@@ -21,6 +23,9 @@ const App = () => {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {/* Define your screens here */}
+
+        <Stack.Screen name="intro" component={Intro} />
+        <Stack.Screen name="home" component={Home} />
         <Stack.Screen name="login" component={Login} />
         <Stack.Screen name="sensor" component={Sensor} />
       </Stack.Navigator>
