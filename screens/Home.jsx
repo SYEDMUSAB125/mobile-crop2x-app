@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Alert, Platform, Modal, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Alert, Platform, Modal, RefreshControl, ActivityIndicator } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
 import { isPointInPolygon } from 'geolib';
 import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import { ImageBackground } from 'react-native';
 import useFetchData from '../hooks/useFetchData';
-
+import Icon from 'react-native-vector-icons/Ionicons';
+import useWeather from '../hooks/useWeather';
 const FarmDashboard = (props) => {
+  API_KEY = "efb3685cfdd64117aa0102758242911"
   const navigation = props.navigation;
   const email = props.route.params.username;
   const [lat, setLat] = useState(null);
@@ -14,7 +16,15 @@ const FarmDashboard = (props) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false); // State for pull-to-refresh
   const { fetchData, data, loading, error } = useFetchData();
+const {weatherData, weatherError, weatherLoading } = useWeather(`https://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=${lat},${long}`);
 
+console.log(weatherData)
+const {current,location} = weatherData || {};
+const {temp_c, condition, humidity,dewpoint_c, precip_mm} = current || {};
+console.log(condition)
+const {name , region} = location || {};
+console.log("lat",lat)
+console.log("long",long)
   const requestLocationPermission = async () => {
     try {
       const result = await request(
@@ -119,29 +129,39 @@ const FarmDashboard = (props) => {
           imageStyle={{ borderRadius: 15 }}
         >
           <View style={styles.overlay}>
-            <Text style={styles.temperature}>18°C</Text>
-            <Text style={styles.weatherCondition}>Cloudy</Text>
-            <View style={styles.weatherDetails}>
-              <View style={styles.weatherDetail}>
-                <Text style={styles.detailLabel}>Humidity</Text>
-                <Text style={styles.detailValue}>Good</Text>
-              </View>
-              <View style={styles.weatherDetail}>
-                <Text style={styles.detailLabel}>Soil Moisture</Text>
-                <Text style={styles.detailValue}>Good</Text>
-              </View>
-              <View style={styles.weatherDetail}>
-                <Text style={styles.detailLabel}>Precipitation</Text>
-                <Text style={styles.detailValue}>Low</Text>
-              </View>
+      {weatherLoading ? (
+        <ActivityIndicator size="large" color="#005f56" />
+      ) : (
+        <View>
+          <View>
+            <Text style={styles.temperature}>{temp_c}°C</Text>
+            <Text style={styles.weatherCondition}>{condition?.text}</Text>
+          </View>
+          <Text style={styles.AreaCondition}>Area: {name}/{region}</Text>
+
+          <View style={styles.weatherDetails}>
+            <View style={styles.weatherDetail}>
+              <Text style={styles.detailLabel}>Humidity</Text>
+              <Text style={styles.detailValue}>{humidity}</Text>
+            </View>
+            <View style={styles.weatherDetail}>
+              <Text style={styles.detailLabel}>Dew</Text>
+              <Text style={styles.detailValue}>{dewpoint_c}C</Text>
+            </View>
+            <View style={styles.weatherDetail}>
+              <Text style={styles.detailLabel}>Precipitation</Text>
+              <Text style={styles.detailValue}>{precip_mm}</Text>
             </View>
           </View>
+        </View>
+      )}
+    </View>
         </ImageBackground>
       </View>
 
       {/* Manage Your Fields */}
       <View style={styles.Farms}>
-        <Text style={styles.sectionTitle}>Manage your fields</Text>
+        <Text style={styles.sectionTitle}>Registered Field</Text>
         <ScrollView
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -170,12 +190,13 @@ const FarmDashboard = (props) => {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Options</Text>
+            <Text style={styles.modalTitle}>Contact Us</Text>
             <TouchableOpacity
               style={styles.modalButton}
               onPress={handleAvatarChange}
             >
-              <Text style={styles.modalButtonText}>Change Avatar</Text>
+               <Icon name="logo-whatsapp" size={24} color="#fff"  />
+              <Text style={styles.modalButtonText}>Send message</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.modalButton, styles.cancelButton]}
@@ -199,6 +220,7 @@ const styles = StyleSheet.create({
     padding: 20,
     flex: 1,
   },
+
   container: {
     flex: 1,
     backgroundColor: 'white',
@@ -253,6 +275,13 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
+  AreaCondition: {
+    fontSize: 10,
+    color: 'white',
+    marginBottom: 15,
+    textTransform: 'uppercase',
+    
+  },
   weatherDetails: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -304,10 +333,12 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   fieldMenuIcon: {
+    
     fontSize: 18,
     color: '#9E9E9E',
   },
   menuIcon2: {
+    fontWeight: 'bold',
     height: 30,
     width: 30,
   },
@@ -331,6 +362,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   modalButton: {
+    flexDirection: 'row',
+    gap: 20,
     width: '100%',
     padding: 10,
     marginVertical: 5,

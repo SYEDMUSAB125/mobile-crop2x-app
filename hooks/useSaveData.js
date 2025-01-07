@@ -11,8 +11,8 @@ const useSaveData = () => {
     setError(null);
 
  let userName = email.split('@')[0];
-
-    const { deviceId, temperature, conductivity, pH, moisture, nitrogen, phosphorus, potassium } = data;
+let version = 1.0;
+    const { deviceId, temperature, conductivity, pH, moisture, nitrogen, phosphorus, potassium  } = data;
 
     if (!deviceId) {
       setError('Device ID is required to save data.');
@@ -36,6 +36,7 @@ const useSaveData = () => {
         nitrogen: nitrogen || null,
         phosphorus: phosphorus || null,
         potassium: potassium || null,
+        version: version,
         timestamp: Date.now() // Optional: Add a timestamp
       });
 
