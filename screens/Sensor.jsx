@@ -34,6 +34,7 @@ const Sensor = ( props) => {
     const [potassium, setPotassium] = useState('');
     const [count , setCount] = useState(0);
     const { logout} = useLogout();
+    const [isRefreshing, setIsRefreshing] = useState(false);
 
     const navigation = props.navigation;
     const email = props.route.params.username;
@@ -135,6 +136,7 @@ const Sensor = ( props) => {
     const startListeningForData = (device) => {
         try {
             const subscription = device.onDataReceived((data) => {
+               
                 setReceivedData(atob(data.data));
             });
             return () => subscription.remove();
@@ -214,6 +216,14 @@ const Sensor = ( props) => {
                 Alert.alert('Disconnected', `Successfully disconnected from ${connectedDevice.name}`);
                 setConnectedDevice(null);
                 setReceivedData('');
+                setDeviceid("");
+          setConductivity("");
+          setTemperature("");
+          setPH("");
+          setMoisture("");
+          setNitrogen("");
+          setPhosphorus("");
+          setPotassium("");
             }
         } catch (error) {
             console.error('Error disconnecting from device:', error);
@@ -279,6 +289,22 @@ const handleLogout = async () => {
   );
 };
 
+const handleRefresh = () => {
+    setDeviceid("");
+          setConductivity("");
+          setTemperature("");
+          setPH("");
+          setMoisture("");
+          setNitrogen("");
+          setPhosphorus("");
+          setPotassium("");
+    setIsRefreshing(true);
+    // Simulate a delay for 0.5 seconds
+    setTimeout(() => {
+        setIsRefreshing(false);
+        // Add your refresh logic here
+    }, 500);
+};
 
 
     return (
@@ -322,18 +348,25 @@ const handleLogout = async () => {
             {/* Content Section */}
             <View style={styles.content}>
                 <View style={styles.header1}>
+                <TouchableOpacity title="Refresh" onPress={handleRefresh}  >
+                    {isRefreshing ? <ActivityIndicator size="small" color="#333" />
+                :<Icon name="refresh-outline" size={24} color="#333" style={styles.icon} />    
+                }
+                    
+                    </TouchableOpacity>
                     <Text style={styles.Heading}>
                         address: {connectedDevice ? connectedDevice.address  : "دستیاب نہیں" }
                     </Text>
+                    
                 </View>
 
-                <Text style={styles.label}>درجہ حرارت %:{temperature || `انتظار کریں`}</Text>
-                <Text style={styles.label}>کنڈکٹیویٹی uS/cm: {conductivity } </Text>
-                <Text style={styles.label}>پی ایچ: {pH || `انتظار کریں`} </Text>
-                <Text style={styles.label}>نمی: % {moisture }</Text>
-                <Text style={styles.label} > نائٹروجن: mg/Kg {nitrogen }  </Text>
-                <Text style={styles.label}>فاسفورس: mg/Kg {phosphorus } </Text>
-                <Text style={styles.label}> پوٹاشیم: mg/Kg {potassium } </Text>
+                <Text style={styles.label}>درجہ حرارت %:{temperature || ` انتظار کریں...`}</Text>
+                <Text style={styles.label}>کنڈکٹیویٹی uS/cm: {conductivity || "انتظار کریں... " } </Text>
+                <Text style={styles.label}>پی ایچ: {pH || ` انتظار کریں...`} </Text>
+                <Text style={styles.label}>نمی: % {moisture || " انتظار کریں..." }</Text>
+                <Text style={styles.label} > نائٹروجن: mg/Kg {nitrogen || "انتظار کریں..."}  </Text>
+                <Text style={styles.label}>فاسفورس: mg/Kg {phosphorus || "انتظار کریں..." }  </Text>
+                <Text style={styles.label}> پوٹاشیم: mg/Kg {potassium || " انتظار کریں..." } </Text>
             </View>
 
             <View style={styles.content}>
@@ -451,8 +484,9 @@ const styles = StyleSheet.create({
         color: '#005f56',
     },
     header1: {
+        flexDirection: 'row',
         width: '100%',
-        alignItems: 'center',
+        justifyContent: 'space-between',
     },
     saveButton: {
         marginTop: 20,
