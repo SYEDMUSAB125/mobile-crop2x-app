@@ -132,13 +132,33 @@ const Sensor = ( props) => {
         discoverDevices();
     };
 
-    // Start listening for data from the connected device
     const startListeningForData = (device) => {
+        let buffer = ''; // To store incomplete data chunks
+    
         try {
             const subscription = device.onDataReceived((data) => {
-               
-                setReceivedData(atob(data.data));
+                try {
+                    // Decode the incoming data chunk
+                    const chunk = atob(data.data);
+                    
+                    // Append the chunk to the buffer
+                    buffer += chunk;
+    
+                    // Check if we have a complete JSON object (starts with { and ends with })
+                    if (buffer.startsWith('{') && buffer.endsWith('}')) {
+                        // Parse the complete JSON object
+                        const parsedData = JSON.parse(buffer);
+                        
+                        // Clear the buffer after processing
+                        buffer = '';
+                        setReceivedData(parsedData);
+                    }
+                } catch (error) {
+                    // Log parsing errors (e.g., incomplete JSON)
+                    console.warn('Incomplete or invalid JSON chunk received:', buffer, error);
+                }
             });
+    
             return () => subscription.remove();
         } catch (error) {
             console.error('Error starting data listener:', error);
@@ -180,14 +200,8 @@ const Sensor = ( props) => {
         }
     
         try {
-          // Step 1: Trim the string to remove extra whitespace
-          const trimmedString = receivedData.trim();
-    
-          // Step 2: Parse the JSON string into an object
-          const dataObject = JSON.parse(trimmedString);
-    
-          // Step 3: Destructure the relevant values
-          const { c,id,k,m,n,p,pH ,t } = dataObject;
+      
+          const { c,id,k,m,n,p,pH ,t } = receivedData;
     
           // Step 4: Update state
           setDeviceid(id);
@@ -360,13 +374,13 @@ const handleRefresh = () => {
                     
                 </View>
 
-                <Text style={styles.label}>درجہ حرارت %:{temperature || ` انتظار کریں...`}</Text>
-                <Text style={styles.label}>کنڈکٹیویٹی uS/cm: {conductivity || "انتظار کریں... " } </Text>
-                <Text style={styles.label}>پی ایچ: {pH || ` انتظار کریں...`} </Text>
-                <Text style={styles.label}>نمی: % {moisture || " انتظار کریں..." }</Text>
-                <Text style={styles.label} > نائٹروجن: mg/Kg {nitrogen || "انتظار کریں..."}  </Text>
-                <Text style={styles.label}>فاسفورس: mg/Kg {phosphorus || "انتظار کریں..." }  </Text>
-                <Text style={styles.label}> پوٹاشیم: mg/Kg {potassium || " انتظار کریں..." } </Text>
+                <Text style={styles.label}>درجہ حرارت %:{connectedDevice ? temperature : ` انتظار کریں...`}</Text>
+                <Text style={styles.label}>کنڈکٹیویٹی uS/cm: {connectedDevice ? conductivity : "انتظار کریں... " } </Text>
+                <Text style={styles.label}>پی ایچ: {connectedDevice ? pH : ` انتظار کریں...`} </Text>
+                <Text style={styles.label}>نمی: % {connectedDevice ? moisture : " انتظار کریں..." }</Text>
+                <Text style={styles.label} > نائٹروجن: mg/Kg {connectedDevice ? nitrogen : "انتظار کریں..."}  </Text>
+                <Text style={styles.label}>فاسفورس: mg/Kg {connectedDevice ? phosphorus : "انتظار کریں..." }  </Text>
+                <Text style={styles.label}> پوٹاشیم: mg/Kg {connectedDevice ? potassium : " انتظار کریں..." } </Text>
             </View>
 
             <View style={styles.content}>
